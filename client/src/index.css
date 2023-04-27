@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Ysabeau:ital,wght@0,1;0,100;0,200;0,600;1,1;1,300;1,500;1,600&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Ysabeau', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height:100vh;
+  /* background-color: #262626; */
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  monospace;
+}
