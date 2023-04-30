@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import community2 from "../images/community2.jpg";
-import { Input, Popover, Radio, Modal, message } from "antd";
+// import { Input, Popover, Radio, Modal, message } from "antd";
 
 const Donations = () => {
 

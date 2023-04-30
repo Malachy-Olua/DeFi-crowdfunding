@@ -64,8 +64,8 @@ const Campaigns = () => {
                             </div>
  
                         </div>
-                        <div class="container">
-                            <div class="skill html">80%</div>
+                        <div className="container">
+                            <div className="skill html">80%</div>
                         </div>
                     </div>
                 </div>
@@ -110,8 +110,8 @@ const Campaigns = () => {
                             </div>
  
                         </div>
-                        <div class="container">
-                            <div class="skill html">80%</div>
+                        <div className="container">
+                            <div className="skill html">80%</div>
                         </div>
                     </div>
                 </div>

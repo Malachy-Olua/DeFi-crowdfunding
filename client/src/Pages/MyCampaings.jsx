@@ -4,7 +4,12 @@ import community2 from "../images/community2.jpg";
 import { Input, Popover, Radio, Modal, message } from "antd";
 import {AiOutlineDelete} from  "react-icons/ai";
 
+
+
 const Campaigns = () => {
+
+
+  
 
   const settings = (
     <Section>
@@ -12,59 +17,80 @@ const Campaigns = () => {
       <div>
           <button className="donate">Delete</button>
       </div>
-        
-      
     </Section>
-);
+  );
+  const settings2 = (
+    <Section>
+      <div className='form'>
+        <div className="image">
+          <img src={community2} height={100} width={200}/>
+        </div>
+        <form action="/action_page.php">
+          <label for="lname">UploadFile</label>
+          <input type="file" name='file' accept="image/png, image/jpeg, image/jpg"/>
 
+          <button className="btnpop" type="submit" value="Submit">Upload File</button><br/>
+          <button className="btnpop">Update File</button>
+        </form>
+      </div>
+    </Section>
+  );
+    
   return (
     <Section>
         <div className='cont1'>
-            <div className='cont2'>
-                <div className='cont3'> 
-                    <img src={community2} style={{height:200, width:300}}></img>
+          <div className='cont2'>
+            <div className='cont3'> 
+              <img src={community2} style={{height:200, width:300}}></img>
+            </div>
+            <div className='cont4'>
+              <div className='title'>
+                <p><span style={{fontSize:20,fontWeight:700}}>Title:</span>  A Campaign</p>
+                <div className="delete">
+                  <Popover 
+                        content={settings}
+                        title="" 
+                        trigger="click" 
+                        placement="topLeft"
+                    >
+                    <AiOutlineDelete/>
+                  </Popover>
                 </div>
-                <div className='cont4'>
-                    <div className='title'>
-                      <p><span style={{fontSize:20,fontWeight:700}}>Title:</span>  A Campaign</p>
-                      <div className="delete">
-                        <Popover 
-                              content={settings}
-                              title="" 
-                              trigger="click" 
-                              placement="topLeft"
-                          >
-                          <AiOutlineDelete/>
-                        </Popover>
-                        
-                      </div>
-                    </div>
-                    <div className='description'>
-                        <p><span style={{fontSize:20,fontWeight:700}}>Description:  </span> 
-                           Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                        Harum praesentium dolorum ea beatae id officia iste architecto 
-                        quasi autem! Illum vero distinctio delectus! Provident exercitationem 
-                        tenetur consequuntur, laboriosam illo repellat...</p>    
-                    </div>
-                    <div className='last'>
-                         <div>
-                            <button className="btn">Completed</button>
-                          </div>
-                        <div className="target">
-                          <div>
-                            <h3>Target: 30,300 | </h3>
-                          </div>
-                          <div>
-                            <h3>Funds Raised: 5600</h3> 
-                          </div>
-                        </div>
-                        <div class="container">
-                          <div class="skill html">80%</div>
-                        </div>
-                    </div>
+              </div>
+              <div className='description'>
+                  <p><span style={{fontSize:20,fontWeight:700}}>Description:  </span> 
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+                  Harum praesentium dolorum ea beatae id officia iste architecto 
+                  quasi autem! Illum vero distinctio delectus! Provident exercitationem 
+                  tenetur consequuntur, laboriosam illo repellat...</p>    
+              </div>
+              <div className='last'>
+              <div>
+                <Popover 
+                  content={settings2}
+                  title="" 
+                  trigger="click" 
+                  placement="topLeft"
+                >
+                  <button className="btn" >Completed</button>
+                </Popover>
+              </div>
+                <div className="target">
+                  <div>
+                    <h3>Target: 30,300 | </h3>
+                  </div>
+                  <div>
+                    <h3>Funds Raised: 5600</h3> 
+                  </div>
                 </div>
-            </div><br/>
+                <div class="container">
+                  <div class="skill html">80%</div>
+                </div>
+              </div>
+            </div>
+          </div><br/>
         </div>
+       
     </Section>
   )
 }
@@ -185,17 +211,17 @@ const Section = styled.section`
       height: 100%;
       align-items: flex-end;
       button{
-          margin-left:10px;
-          margin-bottom:10px;
-          background-color: #1a75ff;
-          border: none;
-          border-radius: 5px;
-          color: white;
-          padding: 15px 32px;
-          text-align: center;
-          text-decoration: none;
-          display: inline-block;
-          font-size: 16px;
+        margin-left:10px;
+        margin-bottom:10px;
+        background-color: #1a75ff;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
       }
   }
   .btn{
@@ -206,9 +232,63 @@ const Section = styled.section`
       cursor: not-allowed;
   }
   .target{
-      display: flex;
-      flex-direction: row;
-      gap: 0.7em;
-      padding-right: 0.5em;
+    display: flex;
+    flex-direction: row;
+    gap: 0.7em;
+    padding-right: 0.5em;
   }
+
+  input[type=text], select, textarea {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  input[type=Number] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+
+  input[type=file] {
+    width: 100%;
+    padding: 8px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+
+  .form {
+    border-radius: 5px;
+    background-color: #f2f2f2;
+    padding: 20px;
+    width: 300px;
+    height:250px;
+    margin-bottom:20px;
+  }
+
+  .btnpop{
+    width: 100%;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .btnpop:hover {
+      background-color: #45a049;
+  }
+
 `
