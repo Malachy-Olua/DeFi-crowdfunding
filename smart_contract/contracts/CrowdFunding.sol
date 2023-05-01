@@ -17,17 +17,18 @@ contract CrowdFunding{
         uint target;
         uint funds_raised;
         bool active;
+        address [] votecount;
+        address [] donors;
+        bool raising_funds;
     }
 
     using Counters for Counters.Counter;
     Counters.Counter private campaignNum;
 
-    
-    // Array of all campaigns created.
-    // Campaign[] public campaigns;
-
     // maps an address to a Campaign struct Array.
     mapping(address=>Campaign[]) public creator_to_campaigns;
+    mapping(address=>Campaign[]) public donor_to_campaigns;
+    
 
     /**
     * @dev creates a campaign
@@ -44,7 +45,7 @@ contract CrowdFunding{
         campaignNum.increment();
         uint256 campaign_Id = campaignNum.current();
         creator_to_campaigns[msg.sender].push(Campaign(_title, _description, msg.sender, 
-        campaign_Id, _url, _target,0,true));
+        campaign_Id, _url, _target,0,true, new address[](0),new address[](0),true));
 
     }
 
@@ -68,7 +69,13 @@ contract CrowdFunding{
                 creator_to_campaigns[_creatorAddress][i].target,"target already reached.");
                 require(creator_to_campaigns[_creatorAddress][i].active=true,"campaign closed");
                 creator_to_campaigns[_creatorAddress][i].funds_raised += msg.value; 
-                
+                creator_to_campaigns[_creatorAddress][i].donors.push(msg.sender); 
+                donor_to_campaigns[msg.sender].push(creator_to_campaigns[_creatorAddress][i]);
+                if(creator_to_campaigns[_creatorAddress][i].funds_raised==
+                  creator_to_campaigns[_creatorAddress][i].target){
+                    creator_to_campaigns[_creatorAddress][i].raising_funds==false;
+                }
+
             }else{
                 revert("error occured maybe due to argument unmatching");
             }
@@ -131,6 +138,68 @@ contract CrowdFunding{
         }
         
     }
-    
 
+    /**
+    * @dev acceptCompletion accepts/Votes for the completion of a project 
+    * @param _title title of the campaign
+    * @param _creatorAddress address of the campaign creator
+    * @param _id Id of the campaign  
+    */
+    function acceptCompletion(string calldata _title, address _creatorAddress, uint _id ) external{
+
+        uint256 campaign_Id = campaignNum.current();
+        for(uint i=0;i<campaign_Id;i++){
+            if(keccak256(abi.encodePacked(creator_to_campaigns[_creatorAddress][i].title))==
+                keccak256(abi.encodePacked(_title)) && 
+                creator_to_campaigns[_creatorAddress][i].id==_id){
+                for(uint j=0;j<campaign_Id;j++){
+                    require(creator_to_campaigns[_creatorAddress][i].donors[j]==msg.sender,"Not a donor here");
+                    require(creator_to_campaigns[_creatorAddress][i].votecount[j]==msg.sender,"already accepted");
+                    creator_to_campaigns[_creatorAddress][i].votecount.push(msg.sender);
+                }
+            }
+        }
+        
+    }
+
+
+    /**
+    * @dev withdraw withdraws funds into the campaign creator's wallet 
+    * @param _title title of the campaign
+    * @param _creatorAddress address of the campaign creator
+    * @param _id Id of the campaign  
+    */
+    function withdraw(string calldata _title, address payable _creatorAddress, uint _id) payable external{
+
+        uint256 campaign_Id = campaignNum.current();
+        
+        for(uint i=0; i<campaign_Id;i++){
+            if(keccak256(abi.encodePacked(creator_to_campaigns[_creatorAddress][i].title))==
+                keccak256(abi.encodePacked(_title)) && 
+                creator_to_campaigns[_creatorAddress][i].id==_id &&
+                creator_to_campaigns[_creatorAddress][i].creator_address==msg.sender){
+                require(creator_to_campaigns[_creatorAddress][i].raising_funds==false,
+                "cant make withdrawals now");
+                require(creator_to_campaigns[_creatorAddress][i].funds_raised>0,
+                "Not enough money");
+                if(creator_to_campaigns[_creatorAddress][i].funds_raised==
+                creator_to_campaigns[_creatorAddress][i].target){
+                    uint256 _withdrawFunds = (creator_to_campaigns[_creatorAddress][i].funds_raised)/2;
+                    _creatorAddress.transfer(_withdrawFunds);
+                    creator_to_campaigns[_creatorAddress][i].funds_raised -= _withdrawFunds;
+
+                }else if(creator_to_campaigns[_creatorAddress][i].funds_raised==
+                    (creator_to_campaigns[_creatorAddress][i].target)/2){
+                    require(creator_to_campaigns[_creatorAddress][i].votecount.length==
+                    (creator_to_campaigns[_creatorAddress][i].donors.length)/2);
+                    _creatorAddress.transfer(creator_to_campaigns[_creatorAddress][i].funds_raised);
+                }
+
+            }else{
+                revert("error occured maybe due to argument unmatching");
+            }
+            
+        }
+    }
+    
 }
