@@ -35,7 +35,7 @@ const Campaigns = () => {
       </div>
     </Section>
   );
-    
+    //https://github.com/Malachy-Olua/crowdfunding.git
   return (
     <Section>
         <div className='cont1'>
