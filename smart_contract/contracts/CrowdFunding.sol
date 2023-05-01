@@ -28,6 +28,9 @@ contract CrowdFunding{
     // maps an address to a Campaign struct Array.
     mapping(address=>Campaign[]) public creator_to_campaigns;
     mapping(address=>Campaign[]) public donor_to_campaigns;
+
+    // array of campaign creator addresses
+    address[] addresses;
     
 
     /**
@@ -200,6 +203,34 @@ contract CrowdFunding{
             }
             
         }
+    }
+
+    /**
+    * @dev getCampaigns gets all campaigns created 
+    */
+    function getCampaigns() external view returns(Campaign[][] memory){
+        uint256 campaign_Id = campaignNum.current();
+        Campaign[][] memory campaignArray = new Campaign[][](campaign_Id);
+        for(uint i=0; i<campaign_Id;i++){
+            campaignArray[i] = creator_to_campaigns[addresses[i]];
+        }
+        return campaignArray;
+    }
+
+    /**
+    * @dev getMyCampaigns gets all campaigns created by an address 
+    * @param _creatorAddress address of the campaign creator
+    */
+    function getMyCampaigns(address _creatorAddress)external view returns(Campaign[] memory){
+        return creator_to_campaigns[_creatorAddress];
+    }
+
+    /**
+    * @dev getMyDonations gets all campaigns an address has donated into
+    * @param _donorAddress address of a campaign donor
+    */
+    function getMyDonations(address _donorAddress)external view returns(Campaign[] memory){
+        return donor_to_campaigns[_donorAddress];
     }
     
 }
