@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 
-contract CrowdFunding{
+contract CrowdFundVote{
 
     //contains the information of a campaign.
     struct Campaign{
@@ -17,21 +17,36 @@ contract CrowdFunding{
         uint target;
         uint funds_raised;
         bool active;
-        address [] votecount;
-        address [] donors;
         bool raising_funds;
+        bool isDeleted;
     }
 
     using Counters for Counters.Counter;
     Counters.Counter private campaignNum;
 
-    // maps an address to a Campaign struct Array.
-    mapping(address=>Campaign[]) public creator_to_campaigns;
-    mapping(address=>Campaign[]) public donor_to_campaigns;
+    //will help get all campaigns
+    mapping(uint=>Campaign) private allCampaings;
 
-    // array of campaign creator addresses
-    address[] addresses;
-    
+    mapping(address=>mapping(uint=>Campaign)) private creator_Id_campaings;
+    mapping(address=>mapping(uint=>bool)) private donorFundedCamp;
+    mapping(address=>mapping(uint=>Campaign)) private myDonations;
+
+    //helps check number of donors in a campaign
+    mapping(uint=>address[]) private donors_To_camp;
+
+    //helps check if a donor has already been added to the array in donors_To_camp
+    mapping(address=>mapping(uint=>bool)) private ifAddedtoArray;
+
+
+    //adds a donor address to the array after accepting completion
+    mapping(uint => address[]) private campaignVotersArray;
+
+    //helps check if a donor has already been added to the array in campaignVotersArray
+    mapping(address=>mapping(uint=>bool)) private ifAddedtoVotersArray;
+
+
+    uint public _lengthDonor;
+    uint public _lengthVoter;
 
     /**
     * @dev creates a campaign
@@ -47,172 +62,168 @@ contract CrowdFunding{
 
         campaignNum.increment();
         uint256 campaign_Id = campaignNum.current();
-        creator_to_campaigns[msg.sender].push(Campaign(_title, _description, msg.sender, 
-        campaign_Id, _url, _target,0,true, new address[](0),new address[](0),true));
 
+        Campaign memory newCampaign = Campaign(_title, _description, msg.sender, 
+        campaign_Id, _url, _target,0,true, true, false); 
+        creator_Id_campaings[msg.sender][campaign_Id] = newCampaign;
+        allCampaings[campaign_Id] = newCampaign;
     }
 
-
     /**
-    * @dev funds a campaign
-    * @param _title title of the campaign
+    * @dev fund a campaign
     * @param _creatorAddress address of the campaign creator
+    * @param _id Id of campaign
     */
     function fund (
-        string memory _title, 
         address _creatorAddress,
         uint _id
     ) payable external{
-        uint256 campaign_Id = campaignNum.current();
-        for(uint i=0; i<campaign_Id;i++){
-            if(keccak256(abi.encodePacked(creator_to_campaigns[_creatorAddress][i].title))==
-                keccak256(abi.encodePacked(_title)) && 
-                creator_to_campaigns[_creatorAddress][i].id==_id){
-                require(creator_to_campaigns[_creatorAddress][i].funds_raised!=
-                creator_to_campaigns[_creatorAddress][i].target,"target already reached.");
-                require(creator_to_campaigns[_creatorAddress][i].active=true,"campaign closed");
-                creator_to_campaigns[_creatorAddress][i].funds_raised += msg.value; 
-                creator_to_campaigns[_creatorAddress][i].donors.push(msg.sender); 
-                donor_to_campaigns[msg.sender].push(creator_to_campaigns[_creatorAddress][i]);
-                if(creator_to_campaigns[_creatorAddress][i].funds_raised==
-                  creator_to_campaigns[_creatorAddress][i].target){
-                    creator_to_campaigns[_creatorAddress][i].raising_funds==false;
-                }
+        
+        require(creator_Id_campaings[_creatorAddress][_id].active==true,"campaign closed");
+        require(creator_Id_campaings[_creatorAddress][_id].raising_funds==true,"Target reached");
+        require(creator_Id_campaings[_creatorAddress][_id].isDeleted==false,"campaign deleted");
 
-            }else{
-                revert("error occured maybe due to argument unmatching");
-            }
+        creator_Id_campaings[_creatorAddress][_id].funds_raised += msg.value;
+        allCampaings[_id].funds_raised += msg.value;
+        if(creator_Id_campaings[_creatorAddress][_id].funds_raised/1e18 ==
+        creator_Id_campaings[_creatorAddress][_id].target){
+            creator_Id_campaings[_creatorAddress][_id].raising_funds = false;
+            allCampaings[_id].raising_funds = false;
         }
+        donorFundedCamp[msg.sender][_id]=true;
+        address _address = msg.sender;
+        updateDonorArray(_address,_id);
+        myDonations[msg.sender][_id] = creator_Id_campaings[_creatorAddress][_id];
     }
+
+    function updateDonorArray(address _address, uint _id) private{
+        
+        if(ifAddedtoArray[_address][_id]==false){
+            donors_To_camp[_id].push(_address);
+            ifAddedtoArray[_address][_id]=true;
+        }
+
+        _lengthDonor = donors_To_camp[_id].length;
+
+    }
+
 
     /**
     * @dev closeCampaign closes a campaign
-    * @param _title title of the campaign
     * @param _creatorAddress address of the campaign creator
     * @param _id Id of the campaign 
     * @param _url ipfs url of the completed campaing image/picture 
     */
     function closeCampaign(
-            string calldata _title, 
-            address _creatorAddress, 
-            uint _id, 
-            string calldata _url
-        ) external{
+        address _creatorAddress, 
+        uint _id, 
+        string calldata _url
+    ) external{
+        require(creator_Id_campaings[_creatorAddress][_id].creator_address==msg.sender,
+        "you are not the owner of this campaign.");
+        require(creator_Id_campaings[_creatorAddress][_id].active==true,"campaign closed");
+        creator_Id_campaings[_creatorAddress][_id].url=_url;
+        creator_Id_campaings[_creatorAddress][_id].active = false;
 
-        uint256 campaign_Id = campaignNum.current();
-        for(uint i=0; i<campaign_Id;i++){
-            if(keccak256(abi.encodePacked(creator_to_campaigns[_creatorAddress][i].title))==
-                keccak256(abi.encodePacked(_title)) && 
-                creator_to_campaigns[_creatorAddress][i].id==_id){
-                require(creator_to_campaigns[_creatorAddress][i].creator_address==msg.sender,
-                "you are not the owner of this campaign.");
-                require(creator_to_campaigns[_creatorAddress][i].active=true,"campaign closed");
-                creator_to_campaigns[_creatorAddress][i].url = _url; 
-                creator_to_campaigns[_creatorAddress][i].active = false; 
-                
-            }else{
-                revert("error occured maybe due to argument unmatching");
-            }
-        }
+        allCampaings[_id].url=_url;
+        allCampaings[_id].active = false;
+
+        myDonations[msg.sender][_id].url=_url;
+        myDonations[msg.sender][_id].active = false;
     }
-
 
     /**
     * @dev deleteCampaign deletes a campaign
-    * @param _title title of the campaign
     * @param _creatorAddress address of the campaign creator
     * @param _id Id of the campaign  
     */
-    function deleteCampaign(string calldata _title, address _creatorAddress, uint _id ) external{
+    function deleteCampaign(
+        address _creatorAddress, 
+        uint _id 
+    ) external{
+        require(creator_Id_campaings[_creatorAddress][_id].creator_address==msg.sender,
+        "you are not the owner of this campaign.");
+        require(creator_Id_campaings[_creatorAddress][_id].active==true,"campaign closed");
+        require(creator_Id_campaings[_creatorAddress][_id].funds_raised==0,
+        "You cant delete now. Funds indside the campaign");
 
-        uint256 campaign_Id = campaignNum.current();
-        uint256 ArrLength = creator_to_campaigns[_creatorAddress].length;
-        for(uint i=0; i<campaign_Id;i++){
-            if(keccak256(abi.encodePacked(creator_to_campaigns[_creatorAddress][i].title))==
-                keccak256(abi.encodePacked(_title)) && 
-                creator_to_campaigns[_creatorAddress][i].id==_id &&
-                creator_to_campaigns[_creatorAddress][i].creator_address==msg.sender){
-                creator_to_campaigns[_creatorAddress][i] = creator_to_campaigns[_creatorAddress][ArrLength-1];
-                creator_to_campaigns[_creatorAddress].pop();
-            }else{
-                revert("error occured maybe due to argument unmatching");
-            }
-            
-        }
-        
+        creator_Id_campaings[_creatorAddress][_id].isDeleted = true;
+        allCampaings[_id].isDeleted = true;
+        myDonations[msg.sender][_id].isDeleted = true;
     }
 
     /**
     * @dev acceptCompletion accepts/Votes for the completion of a project 
-    * @param _title title of the campaign
-    * @param _creatorAddress address of the campaign creator
     * @param _id Id of the campaign  
     */
-    function acceptCompletion(string calldata _title, address _creatorAddress, uint _id ) external{
-
-        uint256 campaign_Id = campaignNum.current();
-        for(uint i=0;i<campaign_Id;i++){
-            if(keccak256(abi.encodePacked(creator_to_campaigns[_creatorAddress][i].title))==
-                keccak256(abi.encodePacked(_title)) && 
-                creator_to_campaigns[_creatorAddress][i].id==_id){
-                for(uint j=0;j<campaign_Id;j++){
-                    require(creator_to_campaigns[_creatorAddress][i].donors[j]==msg.sender,"Not a donor here");
-                    require(creator_to_campaigns[_creatorAddress][i].votecount[j]==msg.sender,"already accepted");
-                    creator_to_campaigns[_creatorAddress][i].votecount.push(msg.sender);
-                }
-            }
-        }
-        
+    function acceptCompletion(
+        uint _id 
+    ) external{
+        require(donorFundedCamp[msg.sender][_id]==true,"You are not part of the donors");
+        address _address = msg.sender;
+        updateCampaignVotersArray(_id, _address);
     }
 
+    /**
+    * @dev updateCampaignVotersArray helper function. updates campaignVotersArray
+    * @param _address address of the campaign donor
+    * @param _id Id of the campaign  
+    */
+    function updateCampaignVotersArray(uint _id, address _address)private{
+
+        if(ifAddedtoVotersArray[_address][_id]==false){
+            campaignVotersArray[_id].push(_address);
+
+            ifAddedtoVotersArray[_address][_id] = true;
+        }
+
+        _lengthVoter = campaignVotersArray[_id].length;
+    }
 
     /**
     * @dev withdraw withdraws funds into the campaign creator's wallet 
-    * @param _title title of the campaign
     * @param _creatorAddress address of the campaign creator
     * @param _id Id of the campaign  
     */
-    function withdraw(string calldata _title, address payable _creatorAddress, uint _id) payable external{
+    function withdraw(address payable _creatorAddress, uint _id ) payable external{
+        require(creator_Id_campaings[_creatorAddress][_id].creator_address==msg.sender,
+        "you are not the owner of this campaign.");
+        require(creator_Id_campaings[_creatorAddress][_id].raising_funds==false,"Funding still going on");
 
-        uint256 campaign_Id = campaignNum.current();
-        
-        for(uint i=0; i<campaign_Id;i++){
-            if(keccak256(abi.encodePacked(creator_to_campaigns[_creatorAddress][i].title))==
-                keccak256(abi.encodePacked(_title)) && 
-                creator_to_campaigns[_creatorAddress][i].id==_id &&
-                creator_to_campaigns[_creatorAddress][i].creator_address==msg.sender){
-                require(creator_to_campaigns[_creatorAddress][i].raising_funds==false,
-                "cant make withdrawals now");
-                require(creator_to_campaigns[_creatorAddress][i].funds_raised>0,
-                "Not enough money");
-                if(creator_to_campaigns[_creatorAddress][i].funds_raised==
-                creator_to_campaigns[_creatorAddress][i].target){
-                    uint256 _withdrawFunds = (creator_to_campaigns[_creatorAddress][i].funds_raised)/2;
-                    _creatorAddress.transfer(_withdrawFunds);
-                    creator_to_campaigns[_creatorAddress][i].funds_raised -= _withdrawFunds;
+        if(creator_Id_campaings[_creatorAddress][_id].funds_raised/1e18 ==
+        creator_Id_campaings[_creatorAddress][_id].target){
 
-                }else if(creator_to_campaigns[_creatorAddress][i].funds_raised==
-                    (creator_to_campaigns[_creatorAddress][i].target)/2){
-                    require(creator_to_campaigns[_creatorAddress][i].votecount.length==
-                    (creator_to_campaigns[_creatorAddress][i].donors.length)/2);
-                    _creatorAddress.transfer(creator_to_campaigns[_creatorAddress][i].funds_raised);
-                }
-
-            }else{
-                revert("error occured maybe due to argument unmatching");
-            }
+            uint256 funds = (creator_Id_campaings[_creatorAddress][_id].funds_raised)/2;
+            _creatorAddress.transfer(funds);
+            creator_Id_campaings[_creatorAddress][_id].funds_raised -= funds;
+            allCampaings[_id].funds_raised -= funds;
             
+        }else if(creator_Id_campaings[_creatorAddress][_id].funds_raised/1e18 <= 
+            (creator_Id_campaings[_creatorAddress][_id].target)/2){
+            
+            require(campaignVotersArray[_id].length > 0,"Project not accepted by any donor yet");
+            require(campaignVotersArray[_id].length>=(donors_To_camp[_id].length)/4,
+            "Upto a quarter of total donors have to accept the project completion");
+            uint256 funds = creator_Id_campaings[_creatorAddress][_id].funds_raised;
+            _creatorAddress.transfer(funds);
+            creator_Id_campaings[_creatorAddress][_id].funds_raised -= funds;
+            allCampaings[_id].funds_raised -= funds;
         }
+    
     }
 
     /**
     * @dev getCampaigns gets all campaigns created 
     */
-    function getCampaigns() external view returns(Campaign[][] memory){
+    function getCampaigns() external view returns(Campaign[] memory){
         uint256 campaign_Id = campaignNum.current();
-        Campaign[][] memory campaignArray = new Campaign[][](campaign_Id);
+        Campaign[] memory campaignArray = new Campaign[](campaign_Id);
         for(uint i=0; i<campaign_Id;i++){
-            campaignArray[i] = creator_to_campaigns[addresses[i]];
+            uint index = i+1;
+            if(allCampaings[index].isDeleted==true){
+                continue;
+            }
+            campaignArray[i] = allCampaings[index];
         }
         return campaignArray;
     }
@@ -222,7 +233,17 @@ contract CrowdFunding{
     * @param _creatorAddress address of the campaign creator
     */
     function getMyCampaigns(address _creatorAddress)external view returns(Campaign[] memory){
-        return creator_to_campaigns[_creatorAddress];
+        
+        uint256 campaign_Id = campaignNum.current();
+        Campaign[] memory campaignArray = new Campaign[](campaign_Id);
+        for(uint i=0; i<campaign_Id;i++){
+            uint index = i+1;
+            if(creator_Id_campaings[_creatorAddress][index].isDeleted==true){
+                continue;
+            }
+            campaignArray[i] = creator_Id_campaings[_creatorAddress][index];
+        }
+        return campaignArray;
     }
 
     /**
@@ -230,7 +251,17 @@ contract CrowdFunding{
     * @param _donorAddress address of a campaign donor
     */
     function getMyDonations(address _donorAddress)external view returns(Campaign[] memory){
-        return donor_to_campaigns[_donorAddress];
+        uint256 campaign_Id = campaignNum.current();
+        Campaign[] memory campaignArray = new Campaign[](campaign_Id);
+        for(uint i=0; i<campaign_Id;i++){
+            uint index = i+1;
+            if(myDonations[_donorAddress][index].isDeleted==true){
+                continue;
+            }
+            campaignArray[i] = myDonations[_donorAddress][index];
+        }
+        return campaignArray;
     }
+
     
 }
