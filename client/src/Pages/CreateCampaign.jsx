@@ -1,30 +1,35 @@
-import React from 'react';
+import React,{useContext } from 'react';
 import styled from "styled-components";
-import crowd from "../images/crowd.jpg";
+import { CampaignContext } from '../context/CampaignContext';
+
 
 const CreateCampaign = () => {
+
+    const {createCampaign,handleChange,onSubmitHandler,fileUrl} = useContext (CampaignContext);
+
+    
   return (
     <Section>
         <div className='image'>
-            <img src={crowd} ></img>
+            <img src={fileUrl} alt='campaign'></img>
         </div>
         <div className='form'>
-            <form action="/action_page.php">
-                <label for="fname">Campaign Title</label>
-                <input type="text" id="fname" name="firstname" placeholder="Your Campaign Title.."/>
+            <label>Campaign Title</label>
+            <input type="text" id="fname" name="campaignTitle" placeholder="Your Campaign Title.."  onChange={handleChange}/>
 
-                <label for="fname">Target</label>
-                <input type="Number" id="fname" name="firstname" placeholder="Your Campaign Title.."/>
+            <label >Target In ETH</label>
+            <input type="Number" id="fname" name="target" placeholder="Your Campaign Title.." onChange={handleChange}/>
 
-                <label for="lname">Description</label>
-                <textarea id="w3review" name="w3review" rows="4" cols="50" placeholder="A brief description of your campaign.."/>
+            <label >Description</label>
+            <textarea id="w3review" name="description" rows="4" cols="50" placeholder="A brief description of your campaign.."  onChange={handleChange}/>
                 
-                <label for="lname">UploadFile</label>
+            <form onSubmit={onSubmitHandler}>
+                <label >UploadFile</label>
                 <input type="file" name='file' accept="image/png, image/jpeg, image/jpg"/>
 
-                <button type="submit" value="Submit">Upload File</button><br/>
-                <button type="submit" value="Submit">Create Campaign</button>
+                <button type="submit" >Upload File</button><br/>
             </form>
+            <button type="button" onClick={createCampaign}>Create Campaign</button>
         </div>
     </Section>
   )

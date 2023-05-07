@@ -1,48 +1,133 @@
-import React, { useState, useEffect } from "react";
+import React,{ useState, useEffect, useContext } from 'react';
 import styled from "styled-components";
-import community2 from "../images/community2.jpg";
-// import { Input, Popover, Radio, Modal, message } from "antd";
+import { CampaignContext } from '../context/CampaignContext';
+import { useAccount } from 'wagmi';
+import { crowdFunding, crowdFundingABI } from "../utils/Constants";
+import { ethers } from 'ethers';
+
+
+const { ethereum } = window;
+
+const getCampaignContract = () =>{
+
+    const provider = new ethers.providers.Web3Provider(ethereum);
+    const signer = provider.getSigner();
+    const CrowdFundingContract = new ethers.Contract(crowdFunding, crowdFundingABI, signer);
+  
+    return CrowdFundingContract;
+  
+    // console.log({
+    //     provider,
+    //     signer,
+    //     CrowdFundingContract
+    // });
+}
+  
 
 const Donations = () => {
 
+    const {acceptCompletion,organisedCampaigns} = useContext (CampaignContext);
 
+    const [ Istruth, setIstruth] = useState(true)
+    const { address} = useAccount()
+    const[MyDonations,setMyDonations]=useState([]);
+    
+
+    const getMy = async(address)=>{
+        if(!ethereum) return alert('Please install a wallet first');
+        const campaignContract = getCampaignContract();
+    
+        const campaign = await campaignContract.getMyDonations(address);
+        //console.log(campaign);
+        const filteredCampaigns = campaign.filter(campaign => parseInt(campaign.id._hex) != 0)
+        const organisedCampaigns = filteredCampaigns.map((campaign)=>({
+           
+          title:campaign.title,
+          description:campaign.description,
+          creator_address: campaign.creator_address,
+          Id: parseInt(campaign.id._hex),
+          url: campaign.url,
+          target: parseInt(campaign.target._hex)/(10**18),
+          funds_raised: parseInt(campaign.funds_raised._hex)/(10**18) ,
+          active:campaign.active,
+          raising_funds:campaign.raising_funds,
+          isDeleted:campaign.isDeleted,
+          percentage: (((parseInt(campaign.funds_raised._hex)/(10**18))/(parseInt(campaign.target._hex)/(10**18)))*100)
+        }));
+        setMyDonations(organisedCampaigns);
+        console.log(organisedCampaigns);
+    }
+
+
+    if(Istruth){
+        getMy(address)
+        setIstruth(false)
+    }
+    
+
+    const handleClick = (event,Id) =>{
+    
+        event.preventDefault();
+    
+        acceptCompletion(Id);  
+    
+    }
+
+    const photoUrl = (_Id)=>{
+
+        const filteredUrlCampaign = organisedCampaigns.filter(campaign=>{
+            return(campaign.Id==_Id);
+        });
+        for(let i=0;i<filteredUrlCampaign.length;i++){
+            return(filteredUrlCampaign[i].url)
+        }
+        //console.log(filteredUrlCampaign)
+    }
+    
+    useEffect(()=>{
+        getMy();
+    },[])
 
   return (
     <Section>
         <div className='cont1'>
-            <div className='cont2'>
-                <div className='cont3'> 
-                    <img src={community2} style={{height:200, width:300}}></img>
-                </div>
-                <div className='cont4'>
-                    <div className='title'>
-                    <p><span style={{fontSize:20,fontWeight:700}}>Title:</span>  A Campaign</p>
-                    </div>
-                    <div className='description'>
-                        <p><span style={{fontSize:20,fontWeight:700}}>Description:  </span> 
-                           Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                        Harum praesentium dolorum ea beatae id officia iste architecto 
-                        quasi autem! Illum vero distinctio delectus! Provident exercitationem 
-                        tenetur consequuntur, laboriosam illo repellat...</p>    
-                    </div>
-                    <div className='last'>
-                        <div>
-                            <button className="btn">Accept Completion</button>
-                          </div>
-                        <div className="target">
-                            <div>
-                                <h3>Target: 30,300 | </h3>
+            {MyDonations.map((campaign)=>{
+                return (
+                    <>
+                        <div className='cont2' key={campaign.id}>
+                            <div className='cont3'> 
+                                <img src={photoUrl(campaign.Id)} style={{height:200, width:"100%",padding:10}}></img>
                             </div>
-                            <div>
-                               <h3>Funds Raised: 5600</h3> 
+                            <div className='cont4'>
+                                <div className='title'>
+                                <p><span style={{fontSize:20,fontWeight:700}}>Title:</span>  {campaign.title}</p>
+                                </div>
+                                <div className='description'>
+                                    <p><span style={{fontSize:20,fontWeight:700}}>Description:  </span> 
+                                    {campaign.description}
+                                    </p>    
+                                </div>
+                                <div className='last'>
+                                    <div>
+                                        <button className="btn" onClick={event =>handleClick(event,campaign.Id)}>Accept Completion</button>
+                                    </div>
+                                    <div className="target">
+                                        <div>
+                                            <h3>Target: {campaign.target} | </h3>
+                                        </div>
+                                        <div>
+                                        <h3>Funds Raised: {campaign.funds_raised}</h3> 
+                                        </div>
+                                    </div>
+                                    <div class="container">
+                                        <div class="skill html" style={{width:`${campaign.percentage+"%"}`}}>{campaign.percentage+"%"}</div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="container">
-                            <div class="skill html">80%</div>
-                        </div>
-                    </div>
-                </div>
-            </div><br/>
+                        </div><br/>
+                    </>
+                )
+            })}
         </div>
     </Section>
   )
@@ -154,5 +239,9 @@ const Section = styled.section`
         flex-direction: row;
         gap: 0.7em;
         padding-right: 0.5em;
+    }
+
+    .cont3{
+        width:500px;
     }
 `

@@ -1,30 +1,20 @@
-import React,{ useState, useEffect, useCallback, useContext } from 'react';
+import React from 'react';
 import styled from "styled-components";
-import helping_hands from "../images/helping_hands.jpg";
 import funding from "../images/funding.jpg";
 import community2 from "../images/community2.jpg";
 import crowd from "../images/crowd.jpg";
 import withdrawal from "../images/withdrawal.jpg";
-import { VotingContext } from '../context/VotersContext';
 import Navbar from "./Navbar"
 import { useNavigate } from 'react-router-dom';
 
-// const useAuth=()=>{
-//   const user = localStorage.getItem('account');
-//   if(user){
-//     return true
-//   }else{
-//     return false
-//   }
-// }
+
 
 
 const Home = () => {
 
-  const {connectWallet,currentAccount} = useContext (VotingContext);
-  const [wallet, setWallet] = useState(false)
+
   const navigate = useNavigate();
-  // const auth = useAuth();
+  
 
 
   return (
@@ -33,9 +23,6 @@ const Home = () => {
         <Navbar/>
         <div className='section2'>
           <div className='div1'>
-            {/* <h1><span style={{color:"#1a75ff", fontFamily:"",fontSize:50}}>Bring Your Ideas to Life</span></h1> */}
-            {/* <p><span style={{color:"#ff0066",fontSize:40,fontFamily:""}}> Crowdfund Your Next Project</span></p> */}
-            {/* <p style={{marginTop:-20}}><span style={{color:"#ff0066",fontSize:40,fontFamily:""}}>Easily and Effectively</span></p> */}
           </div>
         </div>
         <div className='section3'>

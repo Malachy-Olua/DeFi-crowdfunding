@@ -1,115 +1,156 @@
-import React, { useState, useEffect } from "react";
+import React,{ useState, useEffect, useContext } from 'react';
+import { CampaignContext } from '../context/CampaignContext';
 import styled from "styled-components";
-import community2 from "../images/community2.jpg";
-import { Input, Popover, Radio, Modal, message } from "antd";
-import {AiOutlineDelete} from  "react-icons/ai";
+import { ethers } from 'ethers';
+import { crowdFunding, crowdFundingABI } from "../utils/Constants";
+import Completed from "../components/Completed"
+import Delete from "../components/Delete"
+
+import { useAccount } from 'wagmi'
+
+const { ethereum } = window;
+
+const getCampaignContract = () =>{
+
+  const provider = new ethers.providers.Web3Provider(ethereum);
+  const signer = provider.getSigner();
+  const CrowdFundingContract = new ethers.Contract(crowdFunding, crowdFundingABI, signer);
+
+  return CrowdFundingContract;
+
+  // console.log({
+  //     provider,
+  //     signer,
+  //     CrowdFundingContract
+  // });
+}
 
 
 
-const Campaigns = () => {
+const MyCampaigns = () => {
+
+  const [ Istruth, setIstruth] = useState(true)
+  const {getMyCampaigns,withdraw} = useContext (CampaignContext);
+  const { address} = useAccount()
+  const[MyCampaigns,setMyCampaigns]=useState([]);
+ 
+  const getMy = async(address)=>{
+    if(!ethereum) return alert('Please install a wallet first');
+    const campaignContract = getCampaignContract();
+
+    const campaign = await campaignContract.getMyCampaigns(address);
+    //console.log(campaign);
+    const filteredCampaigns = campaign.filter(campaign => parseInt(campaign.id._hex) != 0)
+    //console.log(filteredCampaigns);
+    const organisedCampaigns = filteredCampaigns.map((campaign)=>({
+       
+      title:campaign.title,
+      description:campaign.description,
+      creator_address: campaign.creator_address,
+      Id: parseInt(campaign.id._hex),
+      url: campaign.url,
+      target: parseInt(campaign.target._hex)/(10**18),
+      funds_raised: parseInt(campaign.funds_raised._hex)/(10**18) ,
+      active:campaign.active,
+      raising_funds:campaign.raising_funds,
+      isDeleted:campaign.isDeleted,
+      percentage: (((parseInt(campaign.funds_raised._hex)/(10**18))/(parseInt(campaign.target._hex)/(10**18)))*100)
+    }));
+    setMyCampaigns(organisedCampaigns);
+    //console.log(organisedCampaigns);
+  }
+ 
+  if(Istruth){
+    getMy(address)
+    setIstruth(false)
+    
+  }
 
 
-  
+  const handleClick = (event,address,Id) =>{
+    
+    event.preventDefault();
 
-  const settings = (
-    <Section>
-      <div style={{color:"#ff0066"}}>Delete Campaign</div><br/>
-      <div>
-          <button className="donate">Delete</button>
-      </div>
-    </Section>
-  );
-  const settings2 = (
-    <Section>
-      <div className='form'>
-        <div className="image">
-          <img src={community2} height={100} width={200}/>
-        </div>
-        <form action="/action_page.php">
-          <label for="lname">UploadFile</label>
-          <input type="file" name='file' accept="image/png, image/jpeg, image/jpg"/>
+    withdraw(address,Id);  
 
-          <button className="btnpop" type="submit" value="Submit">Upload File</button><br/>
-          <button className="btnpop">Update File</button>
-        </form>
-      </div>
-    </Section>
-  );
-    //https://github.com/Malachy-Olua/crowdfunding.git
+  }
+
+  useEffect(()=>{
+    //getMy(address)
+    
+  },[])
+
+  //https://github.com/Malachy-Olua/crowdfunding.git
   return (
     <Section>
         <div className='cont1'>
-          <div className='cont2'>
-            <div className='cont3'> 
-              <img src={community2} style={{height:200, width:300}}></img>
-            </div>
-            <div className='cont4'>
-              <div className='title'>
-                <p><span style={{fontSize:20,fontWeight:700}}>Title:</span>  A Campaign</p>
-                <div className="delete">
-                  <Popover 
-                        content={settings}
-                        title="" 
-                        trigger="click" 
-                        placement="topLeft"
-                    >
-                    <AiOutlineDelete/>
-                  </Popover>
-                </div>
-              </div>
-              <div className='description'>
-                  <p><span style={{fontSize:20,fontWeight:700}}>Description:  </span> 
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                  Harum praesentium dolorum ea beatae id officia iste architecto 
-                  quasi autem! Illum vero distinctio delectus! Provident exercitationem 
-                  tenetur consequuntur, laboriosam illo repellat...</p>    
-              </div>
-              <div className='last'>
-              <div>
-                <Popover 
-                  content={settings2}
-                  title="" 
-                  trigger="click" 
-                  placement="topLeft"
-                >
-                  <button className="btn" >Completed</button>
-                </Popover>
-              </div>
-                <div className="target">
-                  <div>
-                    <h3>Target: 30,300 | </h3>
+          {MyCampaigns.map((campaign)=>{
+            
+           
+            return (
+              <>
+                <div className='cont2'>
+                  <div className='cont3'> 
+                    <img src={campaign.url} style={{height:200, width:"100%",padding:10}}></img>
                   </div>
-                  <div>
-                    <h3>Funds Raised: 5600</h3> 
+                  <div className='cont4'>
+                    <div className='title'>
+                      <p><span style={{fontSize:20,fontWeight:700}}>Title:</span> {campaign.title}</p>
+                      <div className="delete">
+                        <Delete address={campaign.creator_address} Id={campaign.Id}/>
+                      </div>
+                    </div>
+                    <div className='description'>
+                        <p><span style={{fontSize:20,fontWeight:700}}>Description:  </span> 
+                        {campaign.description}
+                        </p>    
+                    </div>
+                    <div className='last'>
+                      <Completed address={campaign.creator_address} Id={campaign.Id} active={campaign.active}/>
+                      <button className={`${campaign.raising_funds?"disabled":'btn'}`} onClick={event =>handleClick(event,campaign.creator_address,campaign.Id)}>Withdraw</button>
+                      <div className="target">
+                        <div>
+                          <h3>Target: {campaign.target} | </h3>
+                        </div>
+                        <div>
+                          <h3>Funds Raised: {campaign.funds_raised}</h3> 
+                        </div>
+                      </div>
+                      <div class="container">
+                        <div className="skill html" style={{width:`${campaign.percentage+"%"}`}}>{campaign.percentage+"%"}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div class="container">
-                  <div class="skill html">80%</div>
-                </div>
-              </div>
-            </div>
-          </div><br/>
+                </div><br/>
+              </>
+            )
+          })}
         </div>
        
     </Section>
   )
 }
 
-export default Campaigns
+export default MyCampaigns
 
 const Section = styled.section`
 
   .cont2{
-      display: flex;
-      flex-direction: row;
-      height:auto;
-      border: 3px solid;
-      // padding:10px;
-      margin-left: 15px;
-      margin-right: 15px;
-      border-radius: 10px;
-      
+    display: flex;
+    flex-direction: row;
+    height:auto;
+    border: 3px solid;
+    // padding:10px;
+    margin-left: 15px;
+    margin-right: 15px;
+    border-radius: 10px;
+    
   }
+
+  .cont3{
+    width:500px;
+  }
+
   .title{
     display: flex;
     flex-direction: row;
@@ -169,9 +210,7 @@ const Section = styled.section`
       font-size: 20px;
       border-radius: 15px;
   }
-  .html {
-      width: 80%;
-  }
+
 
   .percent{
       height: 30px;
@@ -200,8 +239,8 @@ const Section = styled.section`
           padding-top:0px;
       }
       .description{
-          padding-left:15px;
-          margin-top:-15px;
+        padding-left:15px;
+        margin-top:-15px;
       }
   }
 
@@ -217,7 +256,7 @@ const Section = styled.section`
         border: none;
         border-radius: 5px;
         color: white;
-        padding: 15px 32px;
+        padding: 10px 20px;
         text-align: center;
         text-decoration: none;
         display: inline-block;
@@ -288,7 +327,11 @@ const Section = styled.section`
   }
 
   .btnpop:hover {
-      background-color: #45a049;
+    background-color: #45a049;
   }
 
+  .disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `

@@ -1,121 +1,56 @@
-import React, { useState, useEffect } from "react";
+import React,{  useContext } from 'react';
 import styled from "styled-components";
-import community2 from "../images/community2.jpg";
-import { Input, Popover, Radio, Modal, message } from "antd";
+
+import { CampaignContext } from '../context/CampaignContext';
+import Button  from '../components/Button'
+
 
 const Campaigns = () => {
 
-    const [tokenAmount, setTokenOneAmount] = useState(null);
-    function changeAmount(e) {
-        setTokenOneAmount(e.target.value);
-    }
-    const settings = (
-        <Section>
-          <div style={{color:"#ff0066"}}>Deposit to Campaign</div>
-          <div>
-            <Input placeholder="0" type="number"value={tokenAmount} onChange={(changeAmount)} />
-          </div><br/>
-            <div >
-                <button className="donate">Donate</button>
-            </div>
-        </Section>
-    );
 
+    const {organisedCampaigns} = useContext (CampaignContext);
+    
+    
   return (
     <Section>
         <div className='cont1'>
-            <div className='cont2'>
-                <div className='cont3'> 
-                    <img src={community2} style={{height:200, width:300}}></img>
-                </div>
-                <div className='cont4'>
-                    <div className='title'>
-                    <p><span style={{fontSize:20,fontWeight:700}}>Title:</span>  A Campaign</p>
-                    </div>
-                    <div className='description'>
-                        <p><span style={{fontSize:20,fontWeight:700}}>Description:  </span> 
-                           Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                        Harum praesentium dolorum ea beatae id officia iste architecto 
-                        quasi autem! Illum vero distinctio delectus! Provident exercitationem 
-                        tenetur consequuntur, laboriosam illo repellat...</p>    
-                    </div>
-                    <div className='last'>
-                        
-                        {true?(<Popover 
-                            content={settings}
-                            title="" 
-                            trigger="click" 
-                            placement="topLeft"
-                        >
-                        <button className="btn">Click to Donate</button>
-                        </Popover>):(
-                            <button className="disabled">
-                                Not Active
-                            </button>
-                        )}
-
-                        <div className="target">
- 
-                            <div>
-                                <h3>Target: 30,300 | </h3>
-                            </div>
-                            <div>
-                               <h3>Funds Raised: 5600</h3> 
-                            </div>
- 
+            {organisedCampaigns.map((campaign)=>{
+                return(
+                    <>
+                    <div className='cont2' key={campaign.id}>
+                        <div className='cont3'> 
+                            <img src={campaign.url} alt='funding' style={{height:200, width:"100%",padding:10}}></img>
                         </div>
-                        <div className="container">
-                            <div className="skill html">80%</div>
-                        </div>
-                    </div>
-                </div>
-            </div><br/>
-            <div className='cont2'>
-                <div className='cont3'> 
-                    <img src={community2} style={{height:200, width:300}}></img>
-                </div>
-                <div className='cont4'>
-                    <div className='title'>
-                    <p><span style={{fontSize:20,fontWeight:700}}>Title:</span>  A Campaign</p>
-                    </div>
-                    <div className='description'>
-                        <p><span style={{fontSize:20,fontWeight:700}}>Description:  </span> 
-                           Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                        Harum praesentium dolorum ea beatae id officia iste architecto 
-                        quasi autem! Illum vero distinctio delectus! Provident exercitationem 
-                        tenetur consequuntur, laboriosam illo repellat...</p>    
-                    </div>
-                    <div className='last'>
-                        
-                        {true?(<Popover 
-                            content={settings}
-                            title="" 
-                            trigger="click" 
-                            placement="topLeft"
-                        >
-                        <button className="btn">Click to Donate</button>
-                        </Popover>):(
-                            <button className="disabled">
-                                Not Active
-                            </button>
-                        )}
-
-                        <div className="target">
- 
-                            <div>
-                                <h3>Target: 30,300 | </h3>
+                        <div className='cont4'>
+                            <div className='title'>
+                            <p><span style={{fontSize:20,fontWeight:700}}>Title:</span> {campaign.title}</p>
                             </div>
-                            <div>
-                               <h3>Funds Raised: 5600</h3> 
+                            <div className='description'>
+                                <p><span style={{fontSize:20,fontWeight:700}}>Description:  </span> 
+                                {campaign.description}
+                               </p>    
                             </div>
- 
+                            <div className='last'>
+                                <Button address={campaign.creator_address} Id={campaign.Id} raising_funds={campaign.raising_funds} active={campaign.active}/>
+                                <div className="target">
+        
+                                    <div>
+                                        <h3>Target: {campaign.target} | </h3>
+                                    </div>
+                                    <div>
+                                    <h3>Funds Raised: {campaign.funds_raised}</h3> 
+                                    </div>
+        
+                                </div>
+                                <div className="container">
+                                    <div className="skill html" style={{width:`${campaign.percentage+"%"}`}}>{campaign.percentage+"%"}</div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="container">
-                            <div className="skill html">80%</div>
-                        </div>
-                    </div>
-                </div>
-            </div><br/>
+                    </div><br/>
+                    </>
+                )
+            })}
         </div>
     </Section>
   )
@@ -137,6 +72,10 @@ const Section = styled.section`
         
     }
 
+    .cont3{
+        width:500px;
+    }
+
     .container {
         background-color: rgb(192, 192, 192);
         width: 300px;
@@ -153,9 +92,9 @@ const Section = styled.section`
         font-size: 20px;
         border-radius: 15px;
     }
-    .html {
-        width: 80%;
-    }
+    // .html {
+    //     width: ;
+    // }
 
     .percent{
         height: 30px;

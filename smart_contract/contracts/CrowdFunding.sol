@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 
-contract CrowdFundVote{
+
+contract CrowdFunding{
 
     //contains the information of a campaign.
     struct Campaign{
@@ -85,7 +85,7 @@ contract CrowdFundVote{
 
         creator_Id_campaings[_creatorAddress][_id].funds_raised += msg.value;
         allCampaings[_id].funds_raised += msg.value;
-        if(creator_Id_campaings[_creatorAddress][_id].funds_raised/1e18 ==
+        if(creator_Id_campaings[_creatorAddress][_id].funds_raised ==
         creator_Id_campaings[_creatorAddress][_id].target){
             creator_Id_campaings[_creatorAddress][_id].raising_funds = false;
             allCampaings[_id].raising_funds = false;
@@ -190,7 +190,7 @@ contract CrowdFundVote{
         "you are not the owner of this campaign.");
         require(creator_Id_campaings[_creatorAddress][_id].raising_funds==false,"Funding still going on");
 
-        if(creator_Id_campaings[_creatorAddress][_id].funds_raised/1e18 ==
+        if(creator_Id_campaings[_creatorAddress][_id].funds_raised ==
         creator_Id_campaings[_creatorAddress][_id].target){
 
             uint256 funds = (creator_Id_campaings[_creatorAddress][_id].funds_raised)/2;
@@ -198,7 +198,7 @@ contract CrowdFundVote{
             creator_Id_campaings[_creatorAddress][_id].funds_raised -= funds;
             allCampaings[_id].funds_raised -= funds;
             
-        }else if(creator_Id_campaings[_creatorAddress][_id].funds_raised/1e18 <= 
+        }else if(creator_Id_campaings[_creatorAddress][_id].funds_raised <= 
             (creator_Id_campaings[_creatorAddress][_id].target)/2){
             
             require(campaignVotersArray[_id].length > 0,"Project not accepted by any donor yet");

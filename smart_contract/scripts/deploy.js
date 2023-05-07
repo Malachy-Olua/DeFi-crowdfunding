@@ -1,15 +1,15 @@
 
 const main = async () => {
 
-  const votingOrganizer = await hre.ethers.getContractFactory('VotingOrganizer'); //this is like a function factory or a class that is going to generate instances of that specific contract;
-  const votingOrganizerTransactions = await votingOrganizer.deploy();
+  const crowdFunding = await hre.ethers.getContractFactory('CrowdFunding'); //this is like a function factory or a class that is going to generate instances of that specific contract;
+  const crowdFundingTransaction = await crowdFunding.deploy();
 
-  await votingOrganizerTransactions.deployed();
+  await crowdFundingTransaction.deployed();
 
 
 
-  console.log("votingOrganizer deployed to:", votingOrganizerTransactions.address);
-  //votingOrganizer deployed to: 0x65d732E55E0EF08c02a28945E7e074236aAaB431
+  console.log("crowdFunding deployed to:", crowdFundingTransaction.address);
+  //crowdFunding deployed to: 0xf5149Fd6F8A1a4715dCF9d6428A819173c57edfB
 
 }
 

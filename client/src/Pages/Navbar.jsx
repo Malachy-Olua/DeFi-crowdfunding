@@ -1,4 +1,4 @@
-import React,{ useState, useEffect, useCallback, useContext } from 'react';
+import React,{ useState } from 'react';
 
 import styled from "styled-components";
 import investLogo from "../images/investLogo.png";
@@ -19,7 +19,7 @@ function Navbar() {
   const [navbarState, setNavbarState] = useState(false);
   const [currentList, setCurrentList] = useState(1);
 
- 
+  
 
 
   return (
@@ -96,6 +96,7 @@ function Navbar() {
                   {/* <BiWallet/>
                   <h2><span style={{color:"#001a33"}}>$0.0</span></h2> */}
                 </div> 
+                
               </li>
             </ul>
           </div>

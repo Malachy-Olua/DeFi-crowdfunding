@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react';
-import { BrowserRouter, Route, Routes, Link } from "react-router-dom";
+import React, {} from 'react';
+import { BrowserRouter, Route, Routes} from "react-router-dom";
 import Home from "./Pages/Home";
 import Campaigns from "./Pages/Campaigns";
 import MyCampaings from "./Pages/MyCampaings";
@@ -8,7 +8,6 @@ import CreateCampaign from "./Pages/CreateCampaign";
 import Layout from "../src/Pages/Layout";
 import './App.css';
 
-import styled from "styled-components";
 
 import '@rainbow-me/rainbowkit/styles.css';
 import {connectorsForWallets , RainbowKitProvider} from '@rainbow-me/rainbowkit';
@@ -23,18 +22,18 @@ import {
   omniWallet, 
   imTokenWallet, 
 } from '@rainbow-me/rainbowkit/wallets';
-import { configureChains, createClient, WagmiConfig } from 'wagmi';
+import { configureChains, createClient,WagmiConfig } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { publicProvider } from 'wagmi/providers/public';
-import { mainnet, polygon } from 'wagmi/chains';
+
+import { polygonMumbai } from 'wagmi/chains';
 
 
 export default function App() {
 
   const { chains, provider } = configureChains(
-    [mainnet, polygon],
+    [polygonMumbai],
     [
-      alchemyProvider({ apiKey: process.env.ALCHEMY_ID }),
+      alchemyProvider("jGbnq-30IdG_GeP6KWloSeG7DG_anYiX"),
       
     ]
   );
@@ -88,7 +87,3 @@ export default function App() {
   );
 }
 
-const Div = styled.div`
-
-
-`

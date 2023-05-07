@@ -3,17 +3,17 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import {VotingProvider} from './context/VotersContext';
+import {CampaignProvider} from './context/CampaignContext';
 
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <VotingProvider>
+  <CampaignProvider>
     <React.StrictMode>
       <App />
     </React.StrictMode>
-  </VotingProvider>
+  </CampaignProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function
