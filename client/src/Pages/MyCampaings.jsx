@@ -60,11 +60,7 @@ const MyCampaigns = () => {
     //console.log(organisedCampaigns);
   }
  
-  if(Istruth){
-    getMy(address)
-    setIstruth(false)
-    
-  }
+
 
 
   const handleClick = (event,address,Id) =>{
@@ -77,13 +73,17 @@ const MyCampaigns = () => {
 
   useEffect(()=>{
     //getMy(address)
-    
-  },[])
+    if(Istruth){
+      getMy(address)
+      setIstruth(false)
+      
+    }
+  },[address])
 
   //https://github.com/Malachy-Olua/crowdfunding.git
   return (
     <Section>
-        <div className='cont1'>
+        {MyCampaigns.length>=1?(<div className='cont1'>
           {MyCampaigns.map((campaign)=>{
             
            
@@ -125,7 +125,13 @@ const MyCampaigns = () => {
               </>
             )
           })}
-        </div>
+        </div>):(
+          <div className='warning'>
+            <div style={{opacity:0.7}}>You have not created any campaign</div>
+            <div style={{opacity:0.7}}>OR</div>
+            <div style={{opacity:0.7}}>Check if wallet is connected.</div>
+          </div>
+        )}
        
     </Section>
   )
@@ -333,5 +339,27 @@ const Section = styled.section`
   .disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+  .warning{
+    display:flex;
+    flex-direction: column;
+    justify-content:center;
+    align-items:center;
+    height: 450px;
+    font-size:40px;
+    background: ;
+  }
+
+  @media screen and (min-width: 280px) and (max-width: 1080px) {
+    .warning{
+      display:flex;
+      flex-direction: column;
+      justify-content:center;
+      align-items:center;
+      height: 500px;
+      font-size:20px;
+      padding:10px;
+      background: ;
+    }
   }
 `

@@ -4,12 +4,27 @@ import { ethers } from 'ethers';
 import { create } from "ipfs-http-client";
 import { Buffer } from 'buffer';
 import { crowdFunding, crowdFundingABI } from "../utils/Constants";
+import { Alchemy, Network } from 'alchemy-sdk';
+import { useAccount } from 'wagmi'
+
 
 const { ethereum } = window;
 
 export const CampaignContext = React.createContext();
 
 
+
+const getReadContract = async()=> {
+
+    const Web3 = require('web3');
+    const web3 = new Web3('https://rpc-mumbai.maticvigil.com/v1/f9d55ce5ba614d5dbc73f57b0773c5318b675247');
+    const contractAddress = crowdFunding; // replace this with your contract address
+    const abi = crowdFundingABI
+    const contract = new web3.eth.Contract(abi, contractAddress);
+    // const greeting = await contract.methods.getCampaigns().call();
+    //console.log(greeting);
+  return contract;
+}
 
 const getCampaignContract = () =>{
 
@@ -44,7 +59,7 @@ export const CampaignProvider = ({children}) => {
         },
     });
     
-
+   
    
     const [formData, setFormData] = useState({campaignTitle:'', target:'',description:''});
     const[fileUrl,setFileUrl]=useState(null);
@@ -98,16 +113,13 @@ export const CampaignProvider = ({children}) => {
     };
 
     
-    //---CONNECTING METAMASK
+    
     const checkIfWalletIsConnected = async() =>{
         if(!window.ethereum) return alert('Please install a wallet first');
-
-        const account = await window.ethereum.request({method: "eth_accounts"});
 
         if(true){
            
             //console.log(account[0])
-            //getMyCampaigns();
             getAllCampaigns();
            
         }else{
@@ -258,33 +270,39 @@ export const CampaignProvider = ({children}) => {
     const getAllCampaigns = async() =>{
         
         try {
-            if(!ethereum) return alert('Please install a wallet first');
-            const campaignContract = getCampaignContract();
+            const Web3 = require('web3');
+            const web3 = new Web3('https://rpc-mumbai.maticvigil.com/v1/f9d55ce5ba614d5dbc73f57b0773c5318b675247');
+            const contractAddress = crowdFunding; // replace this with your contract address
+            const abi = crowdFundingABI
+            const contract = new web3.eth.Contract(abi, contractAddress);
+            
 
-            const campaign = await campaignContract.getCampaigns();
-            //console.log(campaign);
-            const filteredCampaigns = campaign.filter(campaign => parseInt(campaign.id._hex) != 0)
+            //const campaign = await campaignContract.getCampaigns();
+            const campaign = await contract.methods.getCampaigns().call();
+            console.log(campaign);
+            const filteredCampaigns = campaign.filter(campaign => parseInt(campaign.id) != 0)
             const organisedCampaigns = filteredCampaigns.map((campaign)=>({
                 title:campaign.title,
                 description:campaign.description,
                 creator_address: campaign.creator_address,
-                Id: parseInt(campaign.id._hex),
+                Id: campaign.id,
                 url: campaign.url,
-                target: parseInt(campaign.target._hex)/(10**18),
-                funds_raised: parseInt(campaign.funds_raised._hex)/(10**18) ,
+                target: parseInt(campaign.target)/(10**18),
+                funds_raised: parseInt(campaign.funds_raised)/(10**18) ,
                 active:campaign.active,
                 raising_funds:campaign.raising_funds,
                 isDeleted:campaign.isDeleted,
-                percentage: (((parseInt(campaign.funds_raised._hex)/(10**18))/(parseInt(campaign.target._hex)/(10**18)))*100)
+                percentage: (((parseInt(campaign.funds_raised)/(10**18))/(parseInt(campaign.target)/(10**18)))*100)
             }));
             
             setOrganisedCampaigns(organisedCampaigns);
-            //console.log(organisedCampaigns);
+            console.log(organisedCampaigns);
         } catch (error) {
-            console.log(error.Error);
+            //console.log(error.Error);
         }
     
     }
+
 
     const getMyCampaigns = async(address) =>{
         
@@ -353,7 +371,7 @@ export const CampaignProvider = ({children}) => {
     useEffect(()=>{
 
         checkIfWalletIsConnected();
-        //getMyCampaigns()
+        
 
     },[])
 
@@ -376,6 +394,7 @@ export const CampaignProvider = ({children}) => {
             IsSentUrl,
             IsFundLoading,
             withdraw,
+            getAllCampaigns,
             }}>
             {children}
         </CampaignContext.Provider>

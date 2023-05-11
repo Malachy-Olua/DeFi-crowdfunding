@@ -7,12 +7,12 @@ import withdrawal from "../images/withdrawal.jpg";
 import Navbar from "./Navbar"
 import { useNavigate } from 'react-router-dom';
 
-
+import { useAccount } from 'wagmi'
 
 
 const Home = () => {
 
-
+  const { address} = useAccount()
   const navigate = useNavigate();
   
 
@@ -28,10 +28,14 @@ const Home = () => {
         <div className='section3'>
           <div className='serv'>
             <div>
-              <button className='btn' onClick={()=>{navigate("/CreateCampaign")}}>Create Campaign</button>
+              {address?
+                (<button className='btn' onClick={()=>{navigate("/CreateCampaign")}}>Create Campaign</button>):
+                (<button className='btn' onClick={()=>{navigate("/")}}>Connect Wallet to Create Campaign</button>)  
+              }
             </div>
           </div>
-          
+        </div>
+        <div>
           <div className='section3b'>
             <div className='section3bi'>
               <div style={{textAlign:"center", marginTop:10}}>
@@ -114,7 +118,7 @@ const Section = styled.section`
   .section3{
     display:flex;
     flex-direction: column;
-    height:400px;
+    height:100px;
     justify-content: center;
     text-align:center;
   }
@@ -123,7 +127,7 @@ const Section = styled.section`
     display:flex;
     flex-direction: column;
     justify-content: center;
-    margin-top:-250px;
+    margin-top:0px;
     h3{
       font-size: 30px;
     }
@@ -134,6 +138,7 @@ const Section = styled.section`
     flex-direction: row;
     justify-content: center;
     gap:100px;
+    height:400px;
   }
 
   .section3bi{
@@ -192,51 +197,41 @@ const Section = styled.section`
     -webkit-transform: scale(1.2); /* Safari 3-8 */
     transform: scale(1.2); 
   }
- 
+
+  .disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .donate{
+    cursor:pointer;
+    transition: ease-in-out all 0.1s;
+    transform: scale(1); 
+    background-color: #00cc66;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    padding: 3px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    
+  }
 
 
 
-  // @media screen and (min-width: 280px) and (max-width: 1080px) {
-  //   background-size: cover;
-  //   background-position: center;
-  //   height: 100vh;
-  //   width:100vw;
-  //   .navbar{
-  //     padding-left:1.875rem;
-  //     padding-right:1.875rem;
-  //     padding-top:3rem;
-  //     padding-bottom:4rem;
-  //     display:flex;
-  //     justify-content:space-between;
-  //   }
-  //   .text h1 {
-  //     font-size: 40px;
-  //   } 
-  //   .text p{
-  //     color:orange;
-  //     font-size:20px;
-  //     font-weight: bold;
-  //   }
-  //   .text h4{
-  //     color:orange;
-  //     font-size:20px;
-  //     font-weight: bold;
-  //   }
-  //   .text button {
-  //     background: linear-gradient(to right, #014d01, #04f704);
-  //     color: white;
-  //     border: none;
-  //     font-size: 20px;
-  //     padding: 10px 20px;
-  //     margin-top: 2rem;
-  //     border-radius: 15px;
-  //     width: 9rem;
-  //     font-weight: bold;
-  //     display: inline-block;
-  //     cursor: pointer;
-  //     transition: 0.4 ease;
-  //     box-shadow: 0 5px 8px 0 rgba(26, 25, 25, 0.2);
-  //   }
-  // }
+  @media screen and (min-width: 280px) and (max-width: 1080px) {
+    .section3b{
+      display:flex;
+      flex-direction: column;
+      align-content: space-around;
+      gap: 200px;
+      align-items: center;
+      margin-top:-150px;
+      height:100vh;
+    }
+  }
+
  
 `

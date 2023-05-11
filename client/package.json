@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@alch/alchemy-web3": "^1.4.7",
     "@emailjs/browser": "^3.11.0",
+    "@ethersproject/providers": "^5.7.2",
     "@rainbow-me/rainbowkit": "^0.12.4",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -23,9 +25,11 @@
     "react-router-dom": "^6.6.1",
     "react-scripts": "5.0.1",
     "react-spinners": "^0.13.7",
+    "scrollreveal": "^4.0.9",
     "styled-components": "^5.3.6",
     "wagmi": "^0.12.8",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "web3": "^1.10.0"
   },
   "scripts": {
     "start": "react-scripts start",

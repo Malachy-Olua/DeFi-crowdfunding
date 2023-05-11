@@ -1,25 +1,21 @@
 import React,{ useState } from 'react';
-
 import styled from "styled-components";
 import investLogo from "../images/investLogo.png";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { VscChromeClose } from "react-icons/vsc";
-
 import { GiTwirlCenter } from "react-icons/gi";
 import { SiBlockchaindotcom } from "react-icons/si";
-
 import { Link } from "react-router-dom";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-
+import { useAccount } from 'wagmi'
 
 function Navbar() {
  
   const html = document.querySelector("html");
   html.addEventListener("click", () => setNavbarState(false));
   const [navbarState, setNavbarState] = useState(false);
-  const [currentList, setCurrentList] = useState(1);
 
-  
+  const { address} = useAccount()
 
 
   return (
@@ -53,18 +49,6 @@ function Navbar() {
               </div>
             </li>
           </ul>
-          <div className="toggle">
-            {navbarState ? (
-              <VscChromeClose onClick={() => setNavbarState(false)} />
-              ) : (
-              <GiHamburgerMenu
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setNavbarState(true);
-                }}
-              />
-            )}
-          </div>
         </nav>
 
         <nav className="nav2">
@@ -73,7 +57,6 @@ function Navbar() {
               <li className="ist1">
                 <div className='investLogo'>
                   <img src={investLogo} alt="" className='logoimg'/>
-                  {/* <h2><span style={{color:"#001a33",fontFamily:"Ysabeau"}}>Inspire-Help</span></h2> */}
                 </div> 
                 <div className='details'>
                   <ul className='ontainer1'>
@@ -93,35 +76,45 @@ function Navbar() {
                 </div>
                 <div className='balance'>
                   <ConnectButton/>
-                  {/* <BiWallet/>
-                  <h2><span style={{color:"#001a33"}}>$0.0</span></h2> */}
                 </div> 
-                
+
               </li>
             </ul>
+          </div>
+          <div className="toggle">
+            {navbarState ? (
+              <VscChromeClose onClick={() => setNavbarState(false)} />
+              ) : (
+              <GiHamburgerMenu
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setNavbarState(true);
+                }}
+              />
+            )}
           </div>
         </nav>
       </Section>
       <ResponsiveNav state={navbarState} className={navbarState ? "show" : ""}>
         <div className="responsive_lists">
           <ul>
-            <li className={currentList === 1 ? "active" : "none"}>
-              <span style={{color:"white"}}>Home</span>
+            <li>
+              <Link to="/" style={{textDecoration:"none"}}><h3 style={{color:"white"}}>Home</h3></Link>
             </li>
         
-            <li className={currentList === 2 ? "active" : "none"}>
-              <GiTwirlCenter />
-              <span style={{color:"white"}}>Voting</span>
+            <li>
+              <Link to="/Campaigns" style={{textDecoration:"none"}}><h3 style={{color:"white"}}>Campaigns</h3></Link>
             </li>
 
-            <li className={currentList === 3 ? "active" : "none"}>
-              <GiTwirlCenter />
-              <span style={{color:"white"}}>Create Contestants/Election</span>
-            </li>
             <li>
-              <GiTwirlCenter />
-              <span style={{color:"white"}}>Elections</span>  
+              <Link to="/MyCampaings" style={{textDecoration:"none"}}><h3 style={{color:"white"}}>My Campaigns</h3></Link>
             </li>
+
+            <li>
+              <Link to="/Donations" style={{textDecoration:"none"}}><h3 style={{color:"white"}}>My Donations</h3></Link> 
+            </li>
+
+            <ConnectButton/>
           </ul>
         </div>
       </ResponsiveNav>
@@ -145,6 +138,10 @@ const Section = styled.section`
       display: none;
     }   
   }
+
+  .toggle {
+    display: none;
+  } 
 
   .investLogo{
     display:flex;
@@ -307,9 +304,83 @@ const Section = styled.section`
 
   
   
-  @media screen and (min-width: 280px) and (max-width: 1080px) {}
+  @media screen and (min-width: 280px) and (max-width: 1080px) {
+    .details{
+      display:none;
+    }
+    .balance{
+      display:none;
+    }
+    .list1{
+      display:flex;
+      align-items:center;
+      gap: 0.5rem;
+      font-size:8px;
+      svg{
+        font-size:8px;
+        color:yellow;
+      }
+    }
+    .list2{
+      display:flex;
+      align-items:center;
+      gap: 0.5rem;
+      font-size:8px;
+      svg{
+        font-size:8px;
+        color:yellow;
+      }
+    }
+    .list3{
+      display:flex;
+      align-items:center;
+      gap: 0.5rem;
+      font-size:8px;
+      svg{
+        font-size:8px;
+        color:yellow;
+      }
+    }
+    .top2{
+      display:flex;
+      list-style-type: none;
+      gap: 2rem;
+      padding-right:10px;
+      padding-left:10px;
+      font-size:12px;
+      svg{
+        font-size:15px;
+        color:yellow;
+      }
+    }
+    .top1{
+      display: flex;
+      justify-content:space-around;
+      background: #001a33;
+      text-decoration:none;
+      height:30px;
+      align-items:center;
+      justify-content:center;
+    }
+    .toggle {
+      display: block;
+      color: black;
+      padding-right:20px;
+      z-index: ;
+      svg {
+        font-size: 1.5rem;
+      }
+    }
+    .nav2{
+      display: flex;
+      height:80px;
+      justify-content:space-between;
+      //width:100%;
+      margin-right:0px;
+    }
+  }
 
-
+  
 `
 
 const ResponsiveNav = styled.div`
@@ -317,15 +388,16 @@ position: fixed;
 right: -10vw;
 top: 0;
 z-index: 15;
-background: rgb(58,59,60);
-background: linear-gradient(90deg, rgba(58,59,60,1) 11%, rgba(58,59,60,1) 100%);
-height: 100vh;
-width: ${({ state }) => (state ? "60%" : "0%")};
+background: #006D44;
+border-radius:10px;
+
+height: 400px;
+width: ${({ state }) => (state ? "50%" : "0%")};
 transition: 0.4s ease-in-out;
 display: flex;
 flex-direction:column;
 color:white;
-opacity: 10;
+opacity: 0.8;
 //visibility:hidden;
 padding: 1rem;
 text-decoration:none;
@@ -349,8 +421,8 @@ text-decoration:none;
     text-decoration:none;
     li {
       display:flex;
-      gap:1rem;
-      padding: 0.6rem 0.6rem;
+      gap:;
+      padding:;
       border-radius: 0.6rem;
       text-decoration:none;
       &:hover {

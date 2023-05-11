@@ -55,7 +55,7 @@ const Donations = () => {
           percentage: (((parseInt(campaign.funds_raised._hex)/(10**18))/(parseInt(campaign.target._hex)/(10**18)))*100)
         }));
         setMyDonations(organisedCampaigns);
-        console.log(organisedCampaigns);
+        //console.log(organisedCampaigns);
     }
 
 
@@ -86,11 +86,12 @@ const Donations = () => {
     
     useEffect(()=>{
         getMy();
-    },[])
+       
+    },[address])
 
   return (
     <Section>
-        <div className='cont1'>
+        {MyDonations.length>=1?(<div className='cont1'>
             {MyDonations.map((campaign)=>{
                 return (
                     <>
@@ -128,7 +129,13 @@ const Donations = () => {
                     </>
                 )
             })}
+        </div>):(
+        <div className='warning'>
+            <div style={{opacity:0.7}}>You have not created any campaign</div>
+            <div style={{opacity:0.7}}>OR</div>
+            <div style={{opacity:0.7}}>Check if wallet is connected.</div>
         </div>
+        )}
     </Section>
   )
 }
@@ -244,4 +251,27 @@ const Section = styled.section`
     .cont3{
         width:500px;
     }
+
+    .warning{
+        display:flex;
+        flex-direction: column;
+        justify-content:center;
+        align-items:center;
+        height: 450px;
+        font-size:40px;
+        background: ;
+    }
+
+    @media screen and (min-width: 280px) and (max-width: 1080px) {
+        .warning{
+          display:flex;
+          flex-direction: column;
+          justify-content:center;
+          align-items:center;
+          height: 500px;
+          font-size:20px;
+          padding:10px;
+          background: ;
+        }
+      }
 `
