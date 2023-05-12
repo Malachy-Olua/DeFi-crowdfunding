@@ -3,9 +3,9 @@ DeFi-crowdfunding software is designed to facilitate decentralized crowdfunding 
 
 ## Features
 ### The DeFi Blockchain Crowdfunding Software has the following features:
-Decentralized crowdfunding: Users can create campaigns and raise funds in a decentralized manner without the need for a centralized intermediary.
-Smart contract functionality: Campaigns are run through smart contracts, which ensure transparency and accountability in the fundraising process.
-Cryptocurrency payments: Users can contribute to campaigns using cryptocurrency, which allows for faster and cheaper transactions.
+- Decentralized crowdfunding: Users can create campaigns and raise funds in a decentralized manner without the need for a centralized intermediary.
+- Smart contract functionality: Campaigns are run through smart contracts, which ensure transparency and accountability in the fundraising process.
+- Cryptocurrency payments: Users can contribute to campaigns using cryptocurrency, which allows for faster and cheaper transactions.
 
 ![Screenshot (7)](https://github.com/Malachy-Olua/DeFi-crowdfunding/assets/105208823/03befe29-d389-46e0-8025-c7a7b8e8f8e6)
 
