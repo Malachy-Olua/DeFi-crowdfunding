@@ -13,7 +13,7 @@ DeFi-crowdfunding software is designed to facilitate decentralized crowdfunding 
 To get started with the DeFi Blockchain Crowdfunding Software, follow these steps:
 - Install a cryptocurrency wallet that supports the blockchain platform you want to use (e.g., MetaMask).
 - Have some polygon matic tokens in your wallet.
-- Visit the DeFi Blockchain Crowdfunding Software website and connect your cryptocurrency wallet to the platform.
+- Visit the DeFi Blockchain Crowdfunding Software website( https://deficampaign.netlify.app/ ) and connect your cryptocurrency wallet to the platform.
 - Browse the campaigns and choose one to contribute to, or create your own campaign.
 - Set your contribution amount and complete the transaction through your cryptocurrency wallet.
 
